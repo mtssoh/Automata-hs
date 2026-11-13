@@ -77,7 +77,7 @@ makeAutomata constructor states alphabet delta initialState finalStates =
     else Nothing
  where
   validStates = initialState `Set.member` states && finalStates `Set.isSubsetOf` states
-  validDelta = Core.validateDelta states alphabet delta
+  validDelta = Core.validate states alphabet delta
 
 makeDFA ::
   (Ord a) =>

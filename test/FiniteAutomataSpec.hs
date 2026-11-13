@@ -1,7 +1,7 @@
 module FiniteAutomataSpec (tests) where
 
-import Automata.FiniteAutomata.Definition
 import Automata.Core qualified as Core
+import Automata.FiniteAutomata.Definition
 import Automata.FiniteAutomata.Delta
 import Data.Map qualified as Map
 import Data.Set qualified as Set
@@ -148,10 +148,65 @@ invalidStateNFAe =
     q0
     (Set.singleton q0)
 
+-- Tests de apply
+
+applyTests :: Test
+applyTests =
+  TestList
+    [ -- DFA
+      "DFA: transicion q0 con 1"
+        ~: Just q2
+        ~=? ( validDFA >>= \dfa ->
+                Core.apply (dfaDelta dfa) (q0, "1")
+            )
+    , "DFA: transicion q2 con 2"
+        ~: Just q3
+        ~=? ( validDFA >>= \dfa ->
+                Core.apply (dfaDelta dfa) (q2, "2")
+            )
+    , "DFA: transicion inexistente"
+        ~: Nothing
+        ~=? ( validDFA >>= \dfa ->
+                Core.apply (dfaDelta dfa) (q0, "2")
+            )
+    , -- NFA
+      "NFA: multiples estados destino"
+        ~: Just (Set.fromList [q0, q2])
+        ~=? ( validNFA >>= \nfa ->
+                Just $ Core.apply (nfaDelta nfa) (q0, 1)
+            )
+    , "NFA: un estado destino"
+        ~: Just (Set.singleton q3)
+        ~=? ( validNFA >>= \nfa ->
+                Just $ Core.apply (nfaDelta nfa) (q2, 2)
+            )
+    , "NFA: transicion inexistente"
+        ~: Just Set.empty
+        ~=? ( validNFA >>= \nfa ->
+                Just $ Core.apply (nfaDelta nfa) (q0, 3)
+            )
+    , -- NFA epsilon
+      "NFAe: transicion epsilon"
+        ~: Just (Set.singleton q2)
+        ~=? ( validNFAe >>= \nfa ->
+                Just $ Core.apply (nfaeDelta nfa) (q0, Nothing)
+            )
+    , "NFAe: transicion con simbolo"
+        ~: Just (Set.singleton q3)
+        ~=? ( validNFAe >>= \nfa ->
+                Just $ Core.apply (nfaeDelta nfa) (q2, Just "1")
+            )
+    , "NFAe: transicion inexistente"
+        ~: Just Set.empty
+        ~=? ( validNFAe >>= \nfa ->
+                Just $ Core.apply (nfaeDelta nfa) (q0, Just "2")
+            )
+    ]
+
 -- Tests
 
-tests :: Test
-tests =
+validateTests :: Test
+validateTests =
   TestList
     [ "DFA valido"
         ~: assertBool "Debe aceptar el DFA" (isValid validDFA)
@@ -171,4 +226,11 @@ tests =
         ~: assertBool "Debe rechazar simbolo" (not $ isValid invalidAlphabetNFAe)
     , "NFAe estado invalido"
         ~: assertBool "Debe rechazar destino epsilon" (not $ isValid invalidStateNFAe)
+    ]
+
+tests :: Test
+tests =
+  TestList
+    [ "Validacion" ~: validateTests
+    , "Aplicacion de delta" ~: applyTests
     ]
