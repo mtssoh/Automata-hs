@@ -11,14 +11,17 @@ common warnings
     ghc-options: -Wall
 
 library
-    import:           warnings
-    exposed-modules:  Automata,
-                      Automata.Core,
-                      Automata.Elements.FiniteAutomata
-    build-depends:    base ^>=4.20.2.0,
-                      containers
-    hs-source-dirs:   src
-    default-language: GHC2024
+    import:             warnings
+    exposed-modules:    Automata,
+                        Automata.Core,
+                        Automata.FiniteAutomata.Delta,
+                        Automata.FiniteAutomata.Definition
+    build-depends:      base ^>=4.20.2.0,
+                        containers
+    hs-source-dirs:     src
+    default-language:   GHC2024
+    default-extensions: TypeFamilies,
+                        FunctionalDependencies
 
 test-suite automata-tests
     type:             exitcode-stdio-1.0
@@ -30,4 +33,3 @@ test-suite automata-tests
                       HUnit,
                       Automata
     default-language: GHC2024
-        

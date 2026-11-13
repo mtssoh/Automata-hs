@@ -1,7 +1,8 @@
 module FiniteAutomataSpec (tests) where
 
+import Automata.FiniteAutomata.Definition
 import Automata.Core qualified as Core
-import Automata.Elements.FiniteAutomata
+import Automata.FiniteAutomata.Delta
 import Data.Map qualified as Map
 import Data.Set qualified as Set
 import Test.HUnit
