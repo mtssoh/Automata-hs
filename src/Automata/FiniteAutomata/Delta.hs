@@ -8,35 +8,35 @@ import Automata.Core qualified as Core
 import Data.Map qualified as Map
 import Data.Set qualified as Set
 
-type DeltaMap symbol transition =
-  Map.Map (Core.State, symbol) transition
+type DeltaMap symbol state transition =
+  Map.Map (Core.State state, symbol) transition
 
-newtype DeterministicDeltaMap symbol
-  = DeterministicDeltaMap (DeltaMap symbol Core.State)
+newtype DeterministicDeltaMap symbol state
+  = DeterministicDeltaMap (DeltaMap symbol state (Core.State state))
   deriving (Show, Read)
 
-newtype NonDeterministicDeltaMap symbol
-  = NonDeterministicDeltaMap (DeltaMap symbol (Set.Set Core.State))
+newtype NonDeterministicDeltaMap symbol state
+  = NonDeterministicDeltaMap (DeltaMap symbol state (Set.Set (Core.State state)))
   deriving (Show, Read)
 
-newtype NonDeterministicEpsilonDeltaMap symbol
-  = NonDeterministicEpsilonDeltaMap (DeltaMap (Maybe symbol) (Set.Set Core.State))
+newtype NonDeterministicEpsilonDeltaMap symbol state
+  = NonDeterministicEpsilonDeltaMap (DeltaMap (Maybe symbol) state (Set.Set (Core.State state)))
   deriving (Show, Read)
 
 validateElems :: (a -> Set.Set b -> Bool) -> Set.Set b -> [a] -> Bool
 validateElems inclusion set list =
   all (`inclusion` set) list
 
-getDeltaElems :: Map.Map (Core.State, a) b -> ([Core.State], [a], [b])
+getDeltaElems :: Map.Map (Core.State state, a) b -> ([Core.State state], [a], [b])
 getDeltaElems transition =
   let inputStates = map fst $ Map.keys transition
       inputSymbols = map snd $ Map.keys transition
       outputStates = Map.elems transition
    in (inputStates, inputSymbols, outputStates)
 
-instance (Ord symbol) => Core.Delta symbol (DeterministicDeltaMap symbol) where
-  type Input (DeterministicDeltaMap symbol) = (Core.State, symbol)
-  type Output (DeterministicDeltaMap symbol) = Maybe Core.State
+instance (Ord symbol, Ord state) => Core.Delta symbol (DeterministicDeltaMap symbol state) state where
+  type Input (DeterministicDeltaMap symbol state) = (Core.State state, symbol)
+  type Output (DeterministicDeltaMap symbol state) = Maybe (Core.State state)
   validate states alphabet (DeterministicDeltaMap transition) =
     all validateStates [inputStates, outputStates] && validAlphabet
    where
@@ -46,9 +46,9 @@ instance (Ord symbol) => Core.Delta symbol (DeterministicDeltaMap symbol) where
   apply (DeterministicDeltaMap delta) (state, symbol) =
     Map.lookup (state, symbol) delta
 
-instance (Ord symbol) => Core.Delta symbol (NonDeterministicDeltaMap symbol) where
-  type Input (NonDeterministicDeltaMap symbol) = (Core.State, symbol)
-  type Output (NonDeterministicDeltaMap symbol) = Set.Set Core.State
+instance (Ord symbol, Ord state) => Core.Delta symbol (NonDeterministicDeltaMap symbol state) state where
+  type Input (NonDeterministicDeltaMap symbol state) = (Core.State state, symbol)
+  type Output (NonDeterministicDeltaMap symbol state) = Set.Set (Core.State state)
   validate states alphabet (NonDeterministicDeltaMap transition) =
     validInputStates && validOutputStates && validAlphabet
    where
@@ -61,9 +61,9 @@ instance (Ord symbol) => Core.Delta symbol (NonDeterministicDeltaMap symbol) whe
       Just stateSet -> stateSet
       Nothing -> Set.empty
 
-instance (Ord symbol) => Core.Delta symbol (NonDeterministicEpsilonDeltaMap symbol) where
-  type Input (NonDeterministicEpsilonDeltaMap symbol) = (Core.State, Maybe symbol)
-  type Output (NonDeterministicEpsilonDeltaMap symbol) = Set.Set Core.State
+instance (Ord symbol, Ord state) => Core.Delta symbol (NonDeterministicEpsilonDeltaMap symbol state) state where
+  type Input (NonDeterministicEpsilonDeltaMap symbol state) = (Core.State state, Maybe symbol)
+  type Output (NonDeterministicEpsilonDeltaMap symbol state) = Set.Set (Core.State state)
   validate states alphabet (NonDeterministicEpsilonDeltaMap transition) =
     validInputStates && validOutputStates && validAlphabet
    where

@@ -13,12 +13,12 @@ isValid Nothing = False
 
 -- Estados
 
-q0, q2, q3 :: Core.State
+q0, q2, q3 :: Core.State String
 q0 = Core.State "q0"
 q2 = Core.State "q2"
 q3 = Core.State "q3"
 
-states1, states2 :: Set.Set Core.State
+states1, states2 :: Set.Set (Core.State String)
 states1 = Set.fromList [q0]
 states2 = Set.fromList [q0, q2, q3]
 
@@ -32,7 +32,7 @@ alphabet2 = Set.fromList [1, 2, 3, 4, 5]
 
 -- DFA
 
-validDFA :: Maybe (DFA String)
+validDFA :: Maybe (DFA String String)
 validDFA =
   makeDFA
     states2
@@ -47,7 +47,7 @@ validDFA =
     q0
     (Set.singleton q3)
 
-invalidAlphabetDFA :: Maybe (DFA String)
+invalidAlphabetDFA :: Maybe (DFA String String)
 invalidAlphabetDFA =
   makeDFA
     states2
@@ -58,7 +58,7 @@ invalidAlphabetDFA =
     q0
     (Set.singleton q2)
 
-invalidStateDFA :: Maybe (DFA String)
+invalidStateDFA :: Maybe (DFA String String)
 invalidStateDFA =
   makeDFA
     states1
@@ -71,7 +71,7 @@ invalidStateDFA =
 
 -- NFA
 
-validNFA :: Maybe (NFA Int)
+validNFA :: Maybe (NFA Int String)
 validNFA =
   makeNFA
     states2
@@ -85,7 +85,7 @@ validNFA =
     q0
     (Set.singleton q3)
 
-invalidAlphabetNFA :: Maybe (NFA Int)
+invalidAlphabetNFA :: Maybe (NFA Int String)
 invalidAlphabetNFA =
   makeNFA
     states2
@@ -96,7 +96,7 @@ invalidAlphabetNFA =
     q0
     (Set.singleton q2)
 
-invalidStateNFA :: Maybe (NFA Int)
+invalidStateNFA :: Maybe (NFA Int String)
 invalidStateNFA =
   makeNFA
     states1
@@ -109,7 +109,7 @@ invalidStateNFA =
 
 -- NFAe
 
-validNFAe :: Maybe (NFAe String)
+validNFAe :: Maybe (NFAe String String)
 validNFAe =
   makeNFAe
     states2
@@ -123,7 +123,7 @@ validNFAe =
     q0
     (Set.singleton q3)
 
-invalidAlphabetNFAe :: Maybe (NFAe String)
+invalidAlphabetNFAe :: Maybe (NFAe String String)
 invalidAlphabetNFAe =
   makeNFAe
     states2
@@ -137,7 +137,7 @@ invalidAlphabetNFAe =
     q0
     (Set.singleton q3)
 
-invalidStateNFAe :: Maybe (NFAe String)
+invalidStateNFAe :: Maybe (NFAe String String)
 invalidStateNFAe =
   makeNFAe
     states1

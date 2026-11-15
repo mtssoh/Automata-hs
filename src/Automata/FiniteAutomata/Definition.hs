@@ -19,57 +19,57 @@ module Automata.FiniteAutomata.Definition (
   nfaeAlphabet,
   nfaeDelta,
   nfaeInitialState,
-  nfaeFinalStates
+  nfaeFinalStates,
 ) where
 
 import Automata.Core qualified as Core
-import Data.Set qualified as Set
 import Automata.FiniteAutomata.Delta
+import Data.Set qualified as Set
 
-type AutomataConstructor symbol delta automata =
-  Set.Set Core.State ->
+type AutomataConstructor symbol delta state automata =
+  Set.Set (Core.State state) ->
   Core.Alphabet symbol ->
   delta ->
-  Core.State ->
-  Set.Set Core.State ->
+  Core.State state ->
+  Set.Set (Core.State state) ->
   automata
 
-data DFA a = DFA
-  { dfaStates :: Set.Set Core.State
+data DFA a b = DFA
+  { dfaStates :: Set.Set (Core.State b)
   , dfaAlphabet :: Core.Alphabet a
-  , dfaDelta :: DeterministicDeltaMap a
-  , dfaInitialState :: Core.State
-  , dfaFinalStates :: Set.Set Core.State
+  , dfaDelta :: DeterministicDeltaMap a b
+  , dfaInitialState :: Core.State b
+  , dfaFinalStates :: Set.Set (Core.State b)
   }
 
-data NFA a = NFA
-  { nfaStates :: Set.Set Core.State
+data NFA a b = NFA
+  { nfaStates :: Set.Set (Core.State b)
   , nfaAlphabet :: Core.Alphabet a
-  , nfaDelta :: NonDeterministicDeltaMap a
-  , nfaInitialState :: Core.State
-  , nfaFinalStates :: Set.Set Core.State
+  , nfaDelta :: NonDeterministicDeltaMap a b
+  , nfaInitialState :: Core.State b
+  , nfaFinalStates :: Set.Set (Core.State b)
   }
 
-data NFAe a = NFAe
-  { nfaeStates :: Set.Set Core.State
+data NFAe a b = NFAe
+  { nfaeStates :: Set.Set (Core.State b)
   , nfaeAlphabet :: Core.Alphabet a
-  , nfaeDelta :: NonDeterministicEpsilonDeltaMap a
-  , nfaeInitialState :: Core.State
-  , nfaeFinalStates :: Set.Set Core.State
+  , nfaeDelta :: NonDeterministicEpsilonDeltaMap a b
+  , nfaeInitialState :: Core.State b
+  , nfaeFinalStates :: Set.Set (Core.State b)
   }
 
-instance Core.Automata (DFA a)
-instance Core.Automata (NFA a)
-instance Core.Automata (NFAe a)
+instance (Ord a, Ord b) => Core.Automata (DFA a b)
+instance (Ord a, Ord b) => Core.Automata (NFA a b)
+instance (Ord a, Ord b) => Core.Automata (NFAe a b)
 
 makeAutomata ::
-  (Core.Delta symbol delta, Core.Automata automata) =>
-  AutomataConstructor symbol delta automata ->
-  Set.Set Core.State ->
+  (Core.Delta symbol delta state, Core.Automata automata, Ord state) =>
+  AutomataConstructor symbol delta state automata ->
+  Set.Set (Core.State state) ->
   Core.Alphabet symbol ->
   delta ->
-  Core.State ->
-  Set.Set Core.State ->
+  Core.State state ->
+  Set.Set (Core.State state) ->
   Maybe automata
 makeAutomata constructor states alphabet delta initialState finalStates =
   if validStates && validDelta
@@ -80,31 +80,31 @@ makeAutomata constructor states alphabet delta initialState finalStates =
   validDelta = Core.validate states alphabet delta
 
 makeDFA ::
-  (Ord a) =>
-  Set.Set Core.State ->
+  (Ord a, Ord b) =>
+  Set.Set (Core.State b) ->
   Core.Alphabet a ->
-  DeterministicDeltaMap a ->
-  Core.State ->
-  Set.Set Core.State ->
-  Maybe (DFA a)
+  DeterministicDeltaMap a b ->
+  Core.State b ->
+  Set.Set (Core.State b) ->
+  Maybe (DFA a b)
 makeDFA = makeAutomata DFA
 
 makeNFA ::
-  (Ord a) =>
-  Set.Set Core.State ->
+  (Ord a, Ord b) =>
+  Set.Set (Core.State b)->
   Core.Alphabet a ->
-  NonDeterministicDeltaMap a ->
-  Core.State ->
-  Set.Set Core.State ->
-  Maybe (NFA a)
+  NonDeterministicDeltaMap a b ->
+  Core.State b ->
+  Set.Set (Core.State b) ->
+  Maybe (NFA a b)
 makeNFA = makeAutomata NFA
 
 makeNFAe ::
-  (Ord a) =>
-  Set.Set Core.State ->
+  (Ord a, Ord b) =>
+  Set.Set (Core.State b) ->
   Core.Alphabet a ->
-  NonDeterministicEpsilonDeltaMap a ->
-  Core.State ->
-  Set.Set Core.State ->
-  Maybe (NFAe a)
+  NonDeterministicEpsilonDeltaMap a b ->
+  Core.State b ->
+  Set.Set (Core.State b) ->
+  Maybe (NFAe a b)
 makeNFAe = makeAutomata NFAe
